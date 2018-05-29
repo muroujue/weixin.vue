@@ -1,0 +1,276 @@
+//对话列表
+
+/*
+*
+*headUrl:对话人头像
+*petName:对话人名字
+*lastMessage:对话最新一条消息
+*sendObject:发送信息的对象(0是自己1是个人2是群)
+*
+*
+*
+*/
+const imgurl = '../static/images/avatar/'
+const CHAT_LIST = [
+	{
+		"wxID":'xiutain_007',
+		"headUrl":imgurl+'tx01.jpg',
+		"petName":"秋田小宅",
+		"lastMessage":"在宇宙中心相互认识彼此在宇宙中心相互认识彼此在宇宙中心相互认识彼此",
+		"lastTime":"下午1:16",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛",
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'daimo_xx',
+		"headUrl":imgurl+'tx02.jpg',
+		"petName":"茉黛",
+		"lastMessage":"明天我过去吧",
+		"lastTime":"上午10:32",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'duang_haha',
+		"headUrl":imgurl+'tx03.jpg',
+		"petName":"DuangDuang~",
+		"lastMessage":"小朋友也可以去玩，只要他愿意",
+		"lastTime":"上午10:08",
+		"messageList":[],
+		"sendObject":1,
+	},
+	{
+		"wxID":'guama_2',
+		"headUrl":imgurl+'tx04.jpg',
+		"petName":"瓜妈",
+		"lastMessage":"不客气，应该的",
+		"lastTime":"昨天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'kanbujian_qq',
+		"headUrl":imgurl+'tx05.jpg',
+		"petName":"你看不见我",
+		"lastMessage":"我是来搞笑的，笑笑就好",
+		"lastTime":"昨天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'Jennifer_123',
+		"headUrl":imgurl+'tx06.jpg',
+		"petName":"Jennifer",
+		"lastMessage":"真的吗？那我们有空聚一聚吧",
+		"lastTime":"昨天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'zhouzhou_002',
+		"headUrl":imgurl+'tx07.jpg',
+		"petName":"周周",
+		"lastMessage":"在宇宙中心相互认识彼此在宇宙中心相互认识彼此在宇宙中心相互认识彼此",
+		"lastTime":"昨天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'jian_2048',
+		"headUrl":imgurl+'tx08.jpg',
+		"petName":"简",
+		"lastMessage":"好的",
+		"lastTime":"昨天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	},
+	{
+		"wxID":'memexiaoyue_5',
+		"headUrl":imgurl+'tx09.jpg',
+		"petName":"么么小悦",
+		"lastMessage":"小朋友也可以去玩，只要他愿意",
+		"lastTime":"前天",
+		"messageList":[
+			{
+				"sendObject":0,
+				"sendMsg":"我不知道啊，你怎么看？",
+				"sendTime":"周三 上午10:21"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"我觉得可以啊，反正明天礼拜天，可以去看看嘛"
+			},
+			{
+				"sendObject":1,
+				"sendMsg":"明天早点儿去，我们8点左右就出发，到哪应该差不多"
+			},
+			{
+				"sendObject":0,
+				"sendMsg":"好的，看看心里踏实"
+			}
+		],
+		"sendObject":1,
+	}
+]
+
+module.exports = CHAT_LIST
