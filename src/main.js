@@ -4,11 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import VueTouch from 'vue-touch'
+import touch from 'vue-directive-touch'
 import axios from 'axios'
 
 Vue.config.productionTip = false
 
 Vue.use(VueTouch,{name: 'v-touch'})
+Vue.use(touch)
 
 // /* simple requests ajax module */
 // let ajax = axios.create()

@@ -9,9 +9,13 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
+// https
+const https = require('https')
+const fs = require('fs')
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
+// const httpsPort = process.env.httpsPort
 
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
@@ -33,6 +37,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     compress: true,
     host: HOST || config.dev.host,
     port: PORT || config.dev.port,
+    // httpsPort: httpsPort || config.dev.httpsPort,
     open: config.dev.autoOpenBrowser,
     overlay: config.dev.errorOverlay
       ? { warnings: false, errors: true }
@@ -43,7 +48,11 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     watchOptions: {
       poll: config.dev.poll,
     },
-    disableHostCheck: true
+    disableHostCheck: true,
+    https: {
+      key: fs.readFileSync(path.join(__dirname, './cert/privatekey.pem')),
+      cert: fs.readFileSync(path.join(__dirname, './cert/certificate.pem'))
+    }
   },
   plugins: [
     new webpack.DefinePlugin({

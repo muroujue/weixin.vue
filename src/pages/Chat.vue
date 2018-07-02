@@ -26,6 +26,9 @@ export default {
     return {
       chatlist:CHAT_LIST
     }
+  },
+  methods:{
+
   }
 }
 </script>

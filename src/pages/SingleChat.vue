@@ -8,24 +8,46 @@
             <span class="time" v-if="item.sendTime"><i>{{item.sendTime}}</i></span>
             <p class="clearfix me" v-scroll>
               <img src="../../static/images/avatar/me.jpg" alt="">
-              <span>{{item.sendMsg}}</span>
+              <span v-if="item.msgType===1">{{item.sendMsg}}</span>
+              <span class="audioType" v-else-if="item.msgType===2" :style="{width:(item.second*0.6) + 'rem'}" @click="playRecord">
+                <i class="iconfont">&#xe628;</i>
+                <b>{{item.second}}"</b>
+                <audio ref="audioMe"></audio>
+              </span>
             </p>
           </div>
           <div v-if="item.sendObject === 1">
             <p class="clearfix friend" v-scroll>
               <img :src="singleChatData.headUrl" alt="">
-            <span>{{item.sendMsg}}</span>
+              <span v-if="item.msgType===1">{{item.sendMsg}}</span>
+              <span class="audioType" v-else-if="item.msgType===2" :style="{width:(item.second*0.6) + 'rem'}" @click="playRecord"><i class="iconfont">&#xe62b;</i><b>{{item.second}}"</b></span>
             </p>
           </div>
         </li>
       </ul>
+      <p></p>
     </div>
     <div class="chatInput clearfix">
-      <span class="type" @click="switchType"><i class="iconfont">&#xe805;</i></span>
-      <edit-div :isclear="clearChat" :isfocus="beFocus" v-model="chatText" @keyup.native.enter="sendMsg" @focus.native="getFocus"></edit-div>
+      <!-- 文字输入 -->
+      <span class="type" v-show="inputType===1" @click="switchType"><i class="iconfont">&#xe805;</i></span>
+      <edit-div v-show="inputType===1" :isclear="clearChat" :isfocus="beFocus" v-model="chatText" @keyup.native.enter="sendMsg" @focus.native="getFocus"></edit-div>
+      <!-- 语音输入 -->
+      <span class="type" v-show="inputType===2" @click="switchType"><i class="iconfont">&#xe7b2;</i></span>
+      <p class="yxBtn" :class="{tapeon:tapeState}" v-show="inputType===2" @touchstart="tapeStart" @touchend="tapeEnd" v-touch:long="tape">{{yxBtnText}}</p>
       <span class="emoji"><i class="iconfont">&#xe61e;</i></span>
       <span class="more" v-show="!isInputed"><i class="iconfont">&#xe607;</i></span>
       <span class="button" v-show="isInputed" @mousedown="sendMsg">发送</span>
+    </div>
+    <div class="taping" v-show="tapeState">
+      <div class="run" v-if="!ishort">
+        <i class="iconfont">&#xe64c;</i>
+        <span><audio ref="audio" src="audioSrc"></audio></span>
+        <p>手指上滑，取消发送</p>
+      </div>
+      <div class="over" v-else>
+        <i class="iconfont">&#xea9e;</i>
+        <p>录音时间太短！</p>
+      </div>
     </div>
   </div>
 </template>
@@ -38,12 +60,23 @@ export default {
   name: 'SingleChat',
   data () {
     return {
+      recordTime:0,
       chatList:CHAT_LIST,
       isInputed:false,
       chatText:'',
       beFocus:true,
       messageList:[],
-      lastChatTime:null
+      lastChatTime:null,
+      inputType:1,
+      yxBtnText:'按住 说话',
+      tapeState:false,
+      timer:null,
+      ishort:false,
+      audioSrc:'',
+      audioStream:null,
+      recorder:null,
+      recorderFile:null,
+      stopCallback:null
     }
   },
   computed:{
@@ -64,7 +97,8 @@ export default {
     sendMsg(){
       let myMsg = {
         "sendObject":0,
-        "sendMsg":this.chatText
+        "sendMsg":this.chatText,
+        "msgType":1
       }
       if (!this.lastChatTime) {
         myMsg.sendTime = new Date().getHours() + ":" + new Date().getMinutes()
@@ -100,7 +134,8 @@ export default {
         results.forEach((item,index) => {
           let newItem = {
             "sendObject":1,
-            "sendMsg":item.values.text
+            "sendMsg":item.values.text,
+            "msgType":1
           }
           this.messageList.push(newItem)
         })
@@ -112,6 +147,117 @@ export default {
     },
     getFocus(){
       this.beFocus = true
+    },
+    switchType(){
+      this.inputType = this.inputType === 1 ? 2 : 1
+    },
+    tapeStart(){
+      this.yxBtnText = '松开 结束'
+      this.tapeState = true
+    },
+    tapeEnd(){
+      this.yxBtnText = '按住 说话'
+      if (this.recordTime === 0) {
+        this.ishort = true
+        if (this.recorder) this.stopRecord()
+        setTimeout(()=>{
+          this.tapeState = false
+          this.ishort = false
+        },500)
+      } else {
+        this.tapeState = false
+        this.stopRecord(this.sendRecordMsg)
+        setTimeout(()=>{
+          this.recordTime = 0
+        },1000)
+      }
+      clearInterval(this.timer)
+    },
+    tape(){
+      this.timer = setInterval(()=>{
+        this.recordTime++
+        if (this.recordTime === 60000) {
+          this.tapeEnd()
+        }
+      },1000)
+      this.startRecord()
+    },
+    startRecord(){
+      navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true }).then((stream)=>{
+        this.audioStream = stream
+        this.recorder = new MediaRecorder(stream)
+        let chunks = [], startTime = 0
+        this.recorder.ondataavailable = (e) => {
+          chunks.push(e.data)
+        }
+        this.recorder.onstop = (e) => {
+          this.recorderFile = new Blob(chunks, { 'type' : this.recorder.mimeType })
+          chunks = []
+          if (this.stopCallback) {
+            this.stopCallback()
+          }
+        }
+        this.recorder.start()
+      }).catch((err)=>{
+        switch (name) {
+          // 用户拒绝
+          case 'NotAllowedError':
+          case 'PermissionDeniedError':
+            errorMessage = '用户已禁止网页调用录音设备'
+          break;
+          // 没接入录音设备
+          case 'NotFoundError':
+          case 'DevicesNotFoundError':
+            errorMessage = '录音设备未找到'
+          break;
+          // 其它错误
+          case 'NotSupportedError':
+            errorMessage = '不支持录音功能'
+          break;
+          default:
+            errorMessage = '录音调用错误'
+        }
+        console.log(errorMessage)
+      })
+    },
+    stopRecord(callback){
+      this.stopCallback = callback
+      this.recorder.stop()
+      // 关闭媒体流
+      this.closeStream()
+      let url = window.URL ? window.URL.createObjectURL(this.recorderFile) : window.webkitURL.createObjectURL(this.recorderFile)
+      let audioDom = this.$refs.audioMe
+      audioDom.src = url
+    },
+    closeStream(){
+      if (typeof this.audioStream.stop === 'function') {
+        this.audioStream.stop()
+      }
+      else {
+        let trackList = [this.audioStream.getAudioTracks(), this.audioStream.getVideoTracks()]
+        for (let i = 0; i < trackList.length; i++) {
+          let tracks = trackList[i]
+          if (tracks && tracks.length > 0) {
+            for (let j = 0; j < tracks.length; j++) {
+              let track = tracks[j]
+              if (typeof track.stop === 'function') {
+                track.stop()
+              }
+            }
+          }
+        }
+      }
+    },
+    playRecord(){
+      audioDom.autoplay = true
+    },
+    sendRecordMsg(){
+      let myMsg = {
+        "sendObject":0,
+        "msgType":2,
+        "second":this.recordTime
+      }
+      this.messageList.push(myMsg)
     }
   },
   watch:{
@@ -185,6 +331,25 @@ export default {
             min-height:1.06rem;
             box-sizing: border-box;
             line-height: 1.5;
+            &.audioType{
+              padding-right: 0.2rem;
+              text-align: right;
+              min-width:1rem;
+              max-width:4.5rem;
+            }
+            i.iconfont{
+              color:#398800;
+              font-size:0.44rem;
+            }
+            b{
+              position: absolute;
+              width:0.5rem;
+              text-align: right;
+              left:-0.7rem;
+              color:#999;
+              top:0.3rem;
+              font-size:0.34rem;
+            }
             &:after{
               content:'';
               position:absolute;
@@ -201,6 +366,16 @@ export default {
               float:left;
               background: #fff;
               box-shadow: 0 0 .03rem#e4e4e4;
+              &.audioType{
+                padding-left: 0.2rem;
+                text-align: left;
+              }
+              b{
+                text-align: left;
+                right:-0.9rem;
+                left:auto;
+                top:0.3rem;
+              }
               &:after{
                 border-top:.2rem solid transparent;
                 border-bottom:.2rem solid transparent;
@@ -240,8 +415,20 @@ export default {
     box-sizing: border-box;
     background: #fff;
     border-top: 0.01rem solid #e1e1e1;
-    padding:0.1rem 0.32rem 0.28rem 1.3rem;
+    padding:0.1rem 0.28rem 0.28rem 1.3rem;
     z-index:9;
+    .yxBtn{
+      height:.74rem;
+      border: 0.02rem solid #d2d2d2;
+      width:5.5rem;
+      border-radius:0.1rem;
+      text-align: center;
+      line-height: 0.74rem;
+      margin: 0.14rem 0 0 0.2rem;
+      &.tapeon{
+        background: #e2e2e2;
+      }
+    }
     span{
       bottom:0.16rem;
       position: absolute;
@@ -277,6 +464,36 @@ export default {
         padding:0.13rem 0.24rem;
         font-size:0.34rem;
       }
+    }
+  }
+  .taping{
+    position: fixed;
+    left:50%;
+    top:50%;
+    background:rgba(0,0,0,0.7);
+    width:4rem;
+    height:4rem;
+    margin: -2rem 0 0 -2rem;
+    border-radius: 0.2rem;
+    color:#fff;
+    box-sizing: border-box;
+    padding:0.5rem 0 0;
+    text-align:center;
+    .run{
+      i{
+        font-size:2rem;
+      }
+      p{
+        margin-top: 0.4rem;
+      }
+    }
+    .over{
+      i{
+        font-size:2.4rem
+      }
+    }
+    p{
+      font-size:0.36rem;
     }
   }
 }
